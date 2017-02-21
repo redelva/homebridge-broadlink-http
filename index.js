@@ -8,7 +8,6 @@ module.exports = function (homebridge) {
   homebridge.registerAccessory("homebridge-http", "Http", HttpAccessory);
 };
 
-
 function HttpAccessory(log, config) {
   this.log = log;
 

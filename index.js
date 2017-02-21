@@ -5,10 +5,10 @@ var pollingtoevent = require('polling-to-event');
 module.exports = function (homebridge) {
   Service = homebridge.hap.Service;
   Characteristic = homebridge.hap.Characteristic;
-  homebridge.registerAccessory("homebridge-http", "Http", HttpAccessory);
+  homebridge.registerAccessory("homebridge-broadlink-http", "BroadlinkHttp", BroadlinkHttpAccessory);
 };
 
-function HttpAccessory(log, config) {
+function BroadlinkHttpAccessory(log, config) {
   this.log = log;
 
   // url info
@@ -102,7 +102,7 @@ function HttpAccessory(log, config) {
   }
 }
 
-HttpAccessory.prototype = {
+BroadlinkHttpAccessory.prototype = {
 
   httpRequest: function (url, body, method, username, password, sendimmediately, callback) {
     request({
@@ -175,14 +175,13 @@ HttpAccessory.prototype = {
       } else {
         var active = responseBody.includes("ACTIVE");
         if(!active) active = responseBody.includes("ok");
+
+        var powerOn = false;
+        
         if (active) {
-          var isMotionActive = active;   // Added support for motion http response for ON
-          var binaryState = Number(isMotionActive);
-        } else {
-          var binaryState = parseInt(responseBody.replace(/\D/g, ""));
+          powerOn = JSON.parse(responseBody)['on'];
         }
-        var powerOn = binaryState > 0;
-        this.log("Power state is currently %s", binaryState);
+        this.log("Power state is currently %s", powerOn);
         callback(null, powerOn);
       }
     }.bind(this));
@@ -250,9 +249,9 @@ HttpAccessory.prototype = {
     var informationService = new Service.AccessoryInformation();
 
     informationService
-      .setCharacteristic(Characteristic.Manufacturer, "HTTP Manufacturer")
-      .setCharacteristic(Characteristic.Model, "HTTP Model")
-      .setCharacteristic(Characteristic.SerialNumber, "HTTP Serial Number");
+      .setCharacteristic(Characteristic.Manufacturer, "Broadlink HTTP Manufacturer")
+      .setCharacteristic(Characteristic.Model, "Broadlink HTTP Model")
+      .setCharacteristic(Characteristic.SerialNumber, "Broadlink HTTP Serial Number");
 
     switch (this.service) {
       case "Switch":

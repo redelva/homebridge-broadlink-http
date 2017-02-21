@@ -173,8 +173,10 @@ HttpAccessory.prototype = {
         this.log('HTTP get power function failed: %s', error.message);
         callback(error);
       } else {
-        if (responseBody.includes("ACTIVE")) {
-          var isMotionActive = responseBody.includes("ACTIVE");   // Added support for motion http response for ON
+        var active = responseBody.includes("ACTIVE");
+        if(!active) active = responseBody.includes("ok");
+        if (active) {
+          var isMotionActive = active;   // Added support for motion http response for ON
           var binaryState = Number(isMotionActive);
         } else {
           var binaryState = parseInt(responseBody.replace(/\D/g, ""));

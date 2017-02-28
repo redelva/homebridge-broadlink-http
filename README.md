@@ -4,7 +4,7 @@ It has to work with a Android app named Broadlink RM Bridge(https://play.google.
 
 It will offer a function named Http Bridge. Simplely an api server for broadlink device.
 
-You can open http://yourandroiddeviceip:port to get http url（try url/devices and url/codes）.
+You can open http://yourandroiddeviceip:port to get on and off url（try http://yourandroiddeviceip:port/devices and http://yourandroiddeviceip:port/codes）.
 
 Next, edit your config.json and work with Homebridge(I am using a Raspberry pi to run homebridge).
 
@@ -12,7 +12,7 @@ a sample config.json for you.
 
 {
     "bridge": {
-        "name": "中城苑",
+        "name": "HOME",
         "username": "CD:22:3D:E3:CE:30",
         "port": 51826,
         "pin": "123-45-678"

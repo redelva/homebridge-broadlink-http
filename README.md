@@ -18,9 +18,7 @@ a sample config.json for you.
         "pin": "123-45-678"
     },
     "description": "This is my home",
-    "platforms": [
-       
-    ],
+    "platforms": [],
     "accessories": [
         {
             "accessory": "BroadlinkHttp",

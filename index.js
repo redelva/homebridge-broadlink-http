@@ -196,10 +196,10 @@ BroadlinkHttpAccessory.prototype = {
     this.log("ch: " + channel);
 
     var url = this.channel_data.find(function(ch){
-      if(ch.channel.toString() === channel.toString()) return ch.url;
+      if(ch.channel.toString() === channel.toString()) return ch;
     });
 
-    this.log("url: " + url);
+    this.log("url: " + url.url);
 
     this.httpRequest(url, "", "GET", this.username, this.password, this.sendimmediately, function (error, response, responseBody) {
       callback();

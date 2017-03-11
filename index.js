@@ -196,25 +196,13 @@ BroadlinkHttpAccessory.prototype = {
     this.log("ch: " + channel);
 
     var url = this.channel_data.find(function(ch){
-      if(ch.channel === channel) return ch.url;
+      if(ch.channel.toString() === channel.toString()) return ch.url;
     });
 
+    this.log("url: " + url);
+
     this.httpRequest(url, "", "GET", this.username, this.password, this.sendimmediately, function (error, response, responseBody) {
-      if (error) {
-        this.log('HTTP get power function failed: %s', error.message);
-        callback(error);
-      } else {
-        var active = responseBody.includes("ACTIVE");
-        if(!active) active = responseBody.includes("ok");
-
-        var powerOn = false;
-
-        if (active) {
-          powerOn = JSON.parse(responseBody)['on'];
-        }
-        this.log("Power state is currently %s", powerOn);
-        callback(null, powerOn);
-      }
+      callback();
     }.bind(this));
 
   },

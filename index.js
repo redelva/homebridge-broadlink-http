@@ -202,7 +202,12 @@ BroadlinkHttpAccessory.prototype = {
     this.log("url: " + url.url);
 
     this.httpRequest(url, "", "GET", this.username, this.password, this.sendimmediately, function (error, response, responseBody) {
-      callback();
+      if(error){
+        callback(error);
+      }else{
+        this.log(responseBody);
+        callback();
+      }
     }.bind(this));
 
   },

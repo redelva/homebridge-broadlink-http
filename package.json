@@ -1,6 +1,6 @@
 {
   "name": "homebridge-broadlink-http",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A homebridge plugin for broadlink device using http",
   "main": "index.js",
   "scripts": {

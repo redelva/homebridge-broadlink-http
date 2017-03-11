@@ -1,10 +1,13 @@
-var Service, Characteristic;
+var Service, Characteristic, HomeKitTVTypes;
 var request = require("request");
 var pollingtoevent = require('polling-to-event');
+var inherits = require('util').inherits;
+var HKTTGen = require('./HomeKitTVTypes');
 
 module.exports = function (homebridge) {
   Service = homebridge.hap.Service;
   Characteristic = homebridge.hap.Characteristic;
+  HomeKitTVTypes = HKTTGen(homebridge);
   homebridge.registerAccessory("homebridge-broadlink-http", "BroadlinkHttp", BroadlinkHttpAccessory);
 };
 
@@ -17,9 +20,11 @@ function BroadlinkHttpAccessory(log, config) {
   this.off_url = config["off_url"];
   this.off_body = config["off_body"];
   this.status_url = config["status_url"];
+  this.channel_url = config["channel_url"];
   this.brightness_url = config["brightness_url"];
   this.brightnesslvl_url = config["brightnesslvl_url"];
   this.http_method = config["http_method"] || "GET";
+  this.channel_data = config["channel_data"] || [];
 
   this.http_brightness_method = config["http_brightness_method"] || this.http_method;
   this.username = config["username"] || "";
@@ -29,6 +34,11 @@ function BroadlinkHttpAccessory(log, config) {
   this.name = config["name"];
   this.brightnessHandling = config["brightnessHandling"] || "no";
   this.switchHandling = config["switchHandling"] || "no";
+
+  this.channels = [""];
+  for (var i = 1; i <= 9; i++) {
+    this.channels.push(this.channel_data[i + ""]);
+  }
 
   //realtime polling info
   this.state = false;
@@ -187,6 +197,32 @@ BroadlinkHttpAccessory.prototype = {
     }.bind(this));
   },
 
+  setChannel: function (payloadChannels, channel, callback) {
+
+    this.log("ch: " + channel);
+
+    var url = this.channel_url;
+
+    this.httpRequest(url, "", "GET", this.username, this.password, this.sendimmediately, function (error, response, responseBody) {
+      if (error) {
+        this.log('HTTP get power function failed: %s', error.message);
+        callback(error);
+      } else {
+        var active = responseBody.includes("ACTIVE");
+        if(!active) active = responseBody.includes("ok");
+
+        var powerOn = false;
+
+        if (active) {
+          powerOn = JSON.parse(responseBody)['on'];
+        }
+        this.log("Power state is currently %s", powerOn);
+        callback(null, powerOn);
+      }
+    }.bind(this));
+
+  },
+
   getBrightness: function (callback) {
     if (!this.brightnesslvl_url) {
       this.log.warn("Ignoring request; No brightness level url defined.");
@@ -254,6 +290,14 @@ BroadlinkHttpAccessory.prototype = {
       .setCharacteristic(Characteristic.SerialNumber, "Broadlink HTTP Serial Number");
 
     switch (this.service) {
+      case "Channel":
+        this.log("add channel service");
+
+        var channelService = new HomeKitTVTypes.ChannelService(this.name);
+        channelService
+          .getCharacteristic(HomeKitTVTypes.ChannelState)
+          .on('set', this.setChannel.bind(this, channels));
+        return [channelService];
       case "Switch":
         this.switchService = new Service.Switch(this.name);
         switch (this.switchHandling) {

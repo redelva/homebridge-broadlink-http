@@ -34,11 +34,6 @@ function BroadlinkHttpAccessory(log, config) {
   this.brightnessHandling = config["brightnessHandling"] || "no";
   this.switchHandling = config["switchHandling"] || "no";
 
-  this.channels = [""];
-  for (var i = 0; i <= 9; i++) {
-    this.channels.push(i.toString());
-  }
-
   //realtime polling info
   this.state = false;
   this.currentlevel = 0;
@@ -196,7 +191,7 @@ BroadlinkHttpAccessory.prototype = {
     }.bind(this));
   },
 
-  setChannel: function (payloadChannels, channel, callback) {
+  setChannel: function (channel, callback) {
 
     this.log("ch: " + channel);
 
@@ -291,16 +286,22 @@ BroadlinkHttpAccessory.prototype = {
       .setCharacteristic(Characteristic.SerialNumber, "Broadlink HTTP Serial Number");
 
     switch (this.service) {
-      case "Channel":
-        this.log("add channel service");
-
-        var channelService = new HomeKitTVTypes.ChannelService(this.name);
-        channelService
-          .getCharacteristic(HomeKitTVTypes.ChannelState)
-          .on('set', this.setChannel.bind(this, this.channels));
-        return [channelService];
       case "Switch":
+        var services = [];
         this.switchService = new Service.Switch(this.name);
+        services.push(this.switchService);
+        if(this.channel_data && this.channel_data.length > 0){
+
+          this.log("add channel service");
+
+          var channelService = new HomeKitTVTypes.ChannelService(this.name);
+          channelService
+            .getCharacteristic(HomeKitTVTypes.ChannelState)
+            .on('set', this.setChannel.bind(this));
+
+          services.push(channelService);
+        }
+
         switch (this.switchHandling) {
           //Power Polling
           case "yes":
@@ -323,7 +324,7 @@ BroadlinkHttpAccessory.prototype = {
               .on('set', this.setPowerState.bind(this));
             break;
         }
-        return [this.switchService];
+        return services;
       case "Light":
         this.lightbulbService = new Service.Lightbulb(this.name);
         switch (this.switchHandling) {

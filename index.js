@@ -20,7 +20,6 @@ function BroadlinkHttpAccessory(log, config) {
   this.off_url = config["off_url"];
   this.off_body = config["off_body"];
   this.status_url = config["status_url"];
-  this.channel_url = config["channel_url"];
   this.brightness_url = config["brightness_url"];
   this.brightnesslvl_url = config["brightnesslvl_url"];
   this.http_method = config["http_method"] || "GET";
@@ -36,8 +35,8 @@ function BroadlinkHttpAccessory(log, config) {
   this.switchHandling = config["switchHandling"] || "no";
 
   this.channels = [""];
-  for (var i = 1; i <= 9; i++) {
-    this.channels.push(this.channel_data[i + ""]);
+  for (var i = 0; i <= 9; i++) {
+    this.channels.push(i.toString());
   }
 
   //realtime polling info
@@ -201,7 +200,9 @@ BroadlinkHttpAccessory.prototype = {
 
     this.log("ch: " + channel);
 
-    var url = this.channel_url;
+    var url = this.channel_data.find(function(ch){
+      if(ch.channel === channel) return ch.url;
+    });
 
     this.httpRequest(url, "", "GET", this.username, this.password, this.sendimmediately, function (error, response, responseBody) {
       if (error) {
@@ -296,7 +297,7 @@ BroadlinkHttpAccessory.prototype = {
         var channelService = new HomeKitTVTypes.ChannelService(this.name);
         channelService
           .getCharacteristic(HomeKitTVTypes.ChannelState)
-          .on('set', this.setChannel.bind(this, channels));
+          .on('set', this.setChannel.bind(this, this.channels));
         return [channelService];
       case "Switch":
         this.switchService = new Service.Switch(this.name);

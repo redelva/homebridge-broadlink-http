@@ -17,7 +17,7 @@ module.exports = function(homebridge) {
       format: Characteristic.Formats.UINT8,
       //unit: Characteristic.Units.PERCENTAGE,
       maxValue: 9,
-      minValue: 1,
+      minValue: 0,
       minStep: 1,
       perms: [Characteristic.Perms.READ, Characteristic.Perms.WRITE, Characteristic.Perms.NOTIFY]
     });
